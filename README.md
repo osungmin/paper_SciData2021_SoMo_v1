@@ -9,4 +9,6 @@ SoMo.ml is a global multi-layer soil moisture data at daily and 0.25 degree scal
 
 2. Python scripts to create paper figures;
 Conda environment can be created from somo_env.yml
+```
 $ conda env create -f somo_env.yml
+```
