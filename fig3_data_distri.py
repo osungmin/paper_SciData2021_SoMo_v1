@@ -113,7 +113,7 @@ def clim_map(l_clims, glo_clims):
       plt.xlim(0.001, 200)
 
       ax.set_xscale('log')
-      ax.set_aspect(0.75)
+      ax.set_aspect(0.1)
 
       if i==0: plt.yticks(np.arange(-20,41,10), np.arange(-20,41,10), fontsize=7)
       else:    plt.yticks(np.arange(-20,41,10),[])
