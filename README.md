@@ -1,6 +1,6 @@
 # SciData2021_SoMo_v1
 
-Paper codes for ""
+Paper codes for *"Global soil moisture data derived through machine learning trained with in-situ measurements"*
 
 SoMo.ml is a global multi-layer soil moisture data at daily and 0.25 degree scales. The data is generated using a machine-learning based model trained with in-situ soil moisutre measurements from >1,000 stations mostly from ISMN (ref) and CEMADEN (ref) networks.
 
