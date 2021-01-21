@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pandas as pd
 import numpy as np
+import gzip, cPickle
 from netCDF4 import Dataset
 
 import matplotlib as mpl
@@ -12,36 +13,6 @@ from mpl_toolkits.basemap import Basemap
 from matplotlib.lines import Line2D
 print ("modules imported")
 
-def compute_weighted(depth, ave):
-    print(" *** computing weighted era5")
-    #swvl1 => layer1 (0.7 vs 0.3)
-    #swvl2 => layer2 (0.9 vs 0.1)
-    #swvl3 => layer3 (no need to interpolate)
-    if depth=="swvl1":
-        vars   = ["swvl1","swvl2"]
-        factors= [0.7, 0.3]
-    if depth=="swvl2":
-        vars   = ["swvl2","swvl3"]
-        factors= [0.9, 0.1]
-
-    k=0
-    for _var in vars:
-        nc_path=datapath(_var, ave)
-        print (" >> loading the netcdf of ", nc_path, _var)
-
-        f1 = Dataset(nc_path, mode='r') # tong
-        __sm = (f1.variables[_var][0,:600,:])#.filled(np.nan)
-        print("before:", np.mean(np.nanmean(__sm)))
-        __sm = __sm * factors[k]
-        print("after", np.mean(np.nanmean(__sm)))
-
-        if k==0: sm=np.copy(__sm)
-        else:   sm+=__sm
-        k+=1
-
-    print("final", np.mean(np.nanmean(sm)))
-    return sm
-
 
 def call_map():
     fig = plt.figure(figsize=(7, 5), facecolor='w', edgecolor='k')
@@ -49,7 +20,6 @@ def call_map():
     gs0 = gridspec.GridSpecFromSubplotSpec(3, 1, height_ratios=[1,1,1], subplot_spec=gs[0])
     gs1 = gridspec.GridSpecFromSubplotSpec(1, 3, width_ratios=[1,1,1], subplot_spec=gs[1])
     return fig, gs0, gs1
-
 
 def lats_averaging(ave):
 
@@ -75,36 +45,21 @@ def lats_averaging(ave):
        if i==2: m.drawmeridians(np.arange(-90., 91., 90.), labels=[1,0,0,1], dashes=[1,1], linewidth=0.25, color='0.5', fontsize=7)
        else: m.drawmeridians(np.arange(-90., 91., 90.), labels=[0,0,0,0], dashes=[1,1], linewidth=0.25, color='0.5', fontsize=7)
 
-
-       # soil moisture layer0, layer1, layer2
-       if i==0:
-           f1 = Dataset(datapath("layer0", ave), mode='r') # ml.data
-           sm = (f1.variables["layer0"][:,:,:])#.filled(np.nan)
-       if i==1:
-           f1 = Dataset(datapath("layer1", ave), mode='r') # ml.data
-           sm = (f1.variables["layer1"][:,:,:])#.filled(np.nan)
-       if i==2:
-           f1 = Dataset(datapath("layer2", ave), mode='r') # ml.data
-           sm = (f1.variables["layer2"][:,:,:])#.filled(np.nan)
-
-       print("> shape of soil moisture netcdf:", sm.shape)
-       pltdata = sm[0,:,:]
-       print("> shape of plot data:", pltdata.shape)
-
-       lons  = f1.variables['longitude'][:]
-       lats  = f1.variables['latitude'][:]
+       lons  = np.arange(-179.875, 180, .25)
+       lats  = np.arange(89.875, -90, -.25)
 
        print("use meshgrid to create 2D arrays")
        lon, lat = np.meshgrid(lons,lats)
        xi, yi = m(lon, lat)
 
        print("grids ready")
-
-       cs = m.pcolormesh(xi,yi, pltdata, vmin=0, vmax=0.6, cmap=cm.YlGnBu)
+       f = gzip.GzipFile("./pltdata/somo_layer"+str(i)+".dat", "r")
+       cs = m.pcolormesh(xi,yi, np.load(f), vmin=0, vmax=0.6, cmap=cm.YlGnBu)
 
        print("label")
        x,y = m(70, -75)
        ax.text(x, y, "Layer"+str(i+1), fontsize=9)
+
 
    print("===================================================")
    print("colorbar")
@@ -116,7 +71,6 @@ def lats_averaging(ave):
    cbar.ax.tick_params(labelsize=7)
    cbar.set_label("SoMo.ml [m$^3$/m$^3$]", fontsize=7)
    cax.tick_params(direction='in', length=1)
-
 
    print("")
    print(">>>>> vertival averages")
@@ -140,29 +94,13 @@ def lats_averaging(ave):
           print("")
           print(" >>", var)
 
-          if var in ["swvl1","swvl2"]:
-              sm=compute_weighted(var, ave)
-          else:
-              nc_path=datapath(var, ave)
-              print (" >> loading the netcdf of ", nc_path, var)
+          lons  = np.arange(-179.875, 180, .25)
+          lats  = np.arange(89.875, -90, -.25)[:600]#to cut Antarctica
 
-              f1 = Dataset(nc_path, mode='r') # tong
-              sm = (f1.variables[var][0,:600,:])
+          print("  loaded:", var, "lons:", lons.shape, "lats:", lats.shape)
 
-          sm = (np.ma.masked_where(lmask<1, sm)).filled(np.nan)
-          #sm[sm<??]=0
-
-          lons  = f1.variables['longitude'][:]
-          lats  = f1.variables['latitude'][:600]
-
-          print("  loaded:", type(sm), sm.shape, "lons:", lons.shape, "lats:", lats.shape)
-
-          #pltdata=np.nanmedian(sm[:,:],1)
-          pltdata=np.nanmean(sm[:,:], axis=1)
-
-          print("")
-          print(pltdata.shape, len(np.arange(89.875,-60,-.25)))
-          print(var, [x for x in pltdata if x>0][:10])
+          f = gzip.GzipFile("./pltdata/"+var+"_layer"+str(i)+".dat", "r")
+          pltdata = np.load(f)
 
           #just for beter plotting (somehow swvl has very low numbs at first & last)
           pltdata[pltdata<0.07]=np.nan
@@ -215,16 +153,6 @@ def lats_averaging(ave):
    plt.savefig("./fig6_"+ave+".png", dpi=300)
    plt.close()
    print("saved.")
-
-
-def datapath(var,ave):
-   path="./pltdata/"
-   if var=="sm":     path+="sm.ens"+ave+".2000-2019.nc"
-   if var=="SMroot": path+="SMroot.ens"+ave+".2000-2018.nc"
-   if var=="SMsurf": path+="SMsurf.ens"+ave+".2000-2018.nc"
-   if var in["swvl1","swvl2", "swvl3"]:     path+=var+".ens"+ave+".2000-2019.nc"
-   if var in["layer0","layer1", "layer2"]:  path+=var+".ens"+ave+".2000-2019.nc"
-   return path
 
 
 ####################################
