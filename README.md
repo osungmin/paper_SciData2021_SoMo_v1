@@ -16,3 +16,7 @@ Conda environment can be created from somo_env.yml
 ```
 $ conda env create -f somo_env.yml
 ```
+2.1 fig_data_map.py: Fig.2
+2.2 fig_data_distri.py: Fig.3
+2.3 fig_comp_idxs.py: Figs. 4 and 5 
+2.4 fig_comp_lats.py: Fig. 6 in the paper
