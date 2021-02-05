@@ -4,13 +4,13 @@ Paper codes for *"Global soil moisture data derived through machine learning tra
 
 SoMo.ml is a global multi-layer soil moisture data at daily and 0.25 degree scales. The data is generated using a machine-learning based model trained with in-situ soil moisutre measurements from >1,000 stations mostly from ISMN (https://ismn.geo.tuwien.ac.at/en/) and CEMADEN (https://data.mendeley.com/datasets/xrk5rfcpvg/2).
 
-1. Long Short-Term Memory based model to generate SoMo.ml v1
-
+1. Long Short-Term Memory based model to generate SoMo.ml v1: /somo_lstm
+Conda environment can be created from somo_lstm.yml
 ```
 $ conda env create -f somo_lstm.yml
 ```
 
-2. Python scripts to create paper figures;
+2. Python scripts to create paper figures: /paper_scripts
 
 Conda environment can be created from somo_env.yml
 ```
