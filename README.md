@@ -13,12 +13,14 @@ $ conda env create -f somo_lstm.yml
 
 2. Python scripts to create paper figures: /paper_scripts
 
-Conda environment can be created from somo_env.yml
+Conda environment can be created from somo_env.yml (Python v2)
 ```
-$ conda env create -f somo_env.yml
+$ conda env create -f somo.yml
 ```
-  - unzip pltdata.zip
-  - fig_data_map.py: Fig.2
-  - fig_data_distri.py: Fig.3
-  - fig_comp_idxs.py: Figs. 4 and 5 
-  - fig_comp_lats.py: Fig. 6 in the paper
+  - unzip pltdata.zip in the same directory
+  - fig2_map.py: Fig.2
+  - fig3_distri.py: Fig.3
+  - fig4_importance.py: Fig.4
+  - fig5_model_val.py: Fig.5
+  - fig6_comp_idxs.py: Figs. 6 and 7 
+  - fig8_comp_lats.py: Fig. 8 in the paper
