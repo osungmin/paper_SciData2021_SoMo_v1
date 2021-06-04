@@ -22,5 +22,5 @@ $ conda env create -f somo.yml
   - fig3_distri.py: Fig.3
   - fig4_importance.py: Fig.4
   - fig5_model_val.py: Fig.5
-  - fig6_comp_idxs.py: Figs. 6 and 7 
+  - fig6_comp_idxs.py: Figs. 6 and 7 (only part of pltdata is available due to data size)
   - fig8_comp_lats.py: Fig. 8 in the paper
